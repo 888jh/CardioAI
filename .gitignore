@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# 环境变量（包含敏感信息）
+.env
+
+# 模型文件（体积大）
+*.pkl
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 日志和临时文件
+*.log
+*.tmp
+.cache/

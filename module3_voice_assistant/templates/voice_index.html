@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceDoc - AI 心血管健康语音顾问</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .input-area {
+            margin-bottom: 30px;
+        }
+
+        .input-area textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        .input-area textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-area button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .input-area button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .input-area button:active {
+            transform: translateY(0);
+        }
+
+        .input-area button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .result-area {
+            display: none;
+            margin-top: 30px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .result-area.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .text-answer {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .text-answer h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .text-answer p {
+            color: #34495e;
+            line-height: 1.8;
+            font-size: 1.05em;
+        }
+
+        .audio-player {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #764ba2;
+        }
+
+        .audio-player h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .audio-player audio {
+            width: 100%;
+            outline: none;
+        }
+
+        .error {
+            display: none;
+            background: #fee;
+            border: 2px solid #e74c3c;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #c0392b;
+        }
+
+        .error.active {
+            display: block;
+        }
+
+        .examples {
+            margin-top: 20px;
+            padding: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+        }
+
+        .examples h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .examples ul {
+            list-style: none;
+        }
+
+        .examples li {
+            padding: 8px 0;
+            color: #667eea;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .examples li:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+            color: #95a5a6;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .input-area textarea {
+                min-height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>VoiceDoc - AI 心血管健康语音顾问</h1>
+            <p>专业的心血管健康问答，支持语音播报</p>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="input-area">
+            <textarea id="questionInput" placeholder="请输入您的问题，例如：什么是高血压？如何预防心血管疾病？"></textarea>
+            <button id="askButton">提问并获取语音回答</button>
+        </div>
+
+        <!-- 加载动画 -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>AI 正在思考并生成语音回答...</p>
+        </div>
+
+        <!-- 结果展示区域 -->
+        <div id="resultArea" class="result-area">
+            <!-- 文字答案 -->
+            <div class="text-answer">
+                <h3>顾问回答：</h3>
+                <p id="textAnswer"></p>
+            </div>
+
+            <!-- 音频播放器 -->
+            <div class="audio-player">
+                <h3>语音播放：</h3>
+                <audio id="audioPlayer" controls></audio>
+            </div>
+        </div>
+
+        <!-- 错误提示 -->
+        <div id="error" class="error"></div>
+
+        <!-- 示例问题 -->
+        <div class="examples">
+            <h3>示例问题：</h3>
+            <ul>
+                <li onclick="fillQuestion(this)">什么是高血压？如何预防？</li>
+                <li onclick="fillQuestion(this)">心血管疾病的主要症状有哪些？</li>
+                <li onclick="fillQuestion(this)">日常生活中如何保护心脏健康？</li>
+                <li onclick="fillQuestion(this)">BMI 超标会增加心血管疾病风险吗？</li>
+                <li onclick="fillQuestion(this)">吸烟对心血管有什么影响？</li>
+            </ul>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer">
+            <p>CardioAI - 心血管疾病智能辅助系统 | Module 3: AI 语音顾问</p>
+            <p>基于 DeepSeek + CosyVoice | 仅供参考，不能替代专业医疗诊断</p>
+        </div>
+    </div>
+
+    <script>
+        // 填充示例问题
+        function fillQuestion(element) {
+            document.getElementById('questionInput').value = element.textContent;
+        }
+
+        // 显示错误
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = '[错误] ' + message;
+            errorDiv.classList.add('active');
+        }
+
+        // 隐藏错误
+        function hideError() {
+            document.getElementById('error').classList.remove('active');
+        }
+
+        // 提问按钮点击事件
+        document.getElementById('askButton').addEventListener('click', async () => {
+            const question = document.getElementById('questionInput').value.trim();
+            
+            if (!question) {
+                alert('请输入问题');
+                return;
+            }
+
+            // 隐藏之前的结果和错误
+            document.getElementById('resultArea').classList.remove('active');
+            hideError();
+
+            // 显示加载动画
+            document.getElementById('loading').classList.add('active');
+            
+            // 禁用按钮
+            const button = document.getElementById('askButton');
+            button.disabled = true;
+            button.textContent = '处理中...';
+
+            try {
+                // 调用后端 API
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ question: question })
+                });
+
+                const result = await response.json();
+
+                // 隐藏加载动画
+                document.getElementById('loading').classList.remove('active');
+                
+                // 恢复按钮
+                button.disabled = false;
+                button.textContent = '提问并获取语音回答';
+
+                if (result.success) {
+                    // 显示文字答案
+                    document.getElementById('textAnswer').textContent = result.text_answer;
+
+                    // 构造音频 URL（Base64 to Data URL）
+                    // 模拟模式使用 WAV 格式，真实模式使用 MP3 格式
+                    const audioUrl = `data:audio/wav;base64,${result.audio_base64}`;
+
+                    // 设置音频源
+                    const audioPlayer = document.getElementById('audioPlayer');
+                    audioPlayer.src = audioUrl;
+
+                    // 显示结果区域
+                    document.getElementById('resultArea').classList.add('active');
+
+                    // 自动播放音频
+                    try {
+                        await audioPlayer.play();
+                    } catch (e) {
+                        console.log('自动播放被阻止，请手动点击播放按钮');
+                    }
+
+                } else {
+                    // 显示错误
+                    showError(result.error || '请求失败');
+                }
+
+            } catch (error) {
+                // 隐藏加载动画
+                document.getElementById('loading').classList.remove('active');
+                
+                // 恢复按钮
+                button.disabled = false;
+                button.textContent = '提问并获取语音回答';
+                
+                // 显示错误
+                showError('网络请求失败: ' + error.message);
+            }
+        });
+
+        // 支持回车键提交（Ctrl+Enter）
+        document.getElementById('questionInput').addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                document.getElementById('askButton').click();
+            }
+        });
+    </script>
+</body>
+</html>
